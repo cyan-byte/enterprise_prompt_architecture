@@ -1,36 +1,58 @@
+# This script is a synchronus API request loop
 import os
-from openai import OpenAI
+from groq import Groq
+from dotenv import load_dotenv, find_dotenv
 
-# 1. Initialize the client pointing to the free OpenCode inference server
-client = OpenAI(
-    base_url="https://opencode.ai/inference/v1",
-    api_key="NOT_NEEDED_FOR_FREE_TIER"  # OpenCode allows free models without an explicit key local call
-)
+# 1. Automatically load variables from your local .env file
+_ = load_dotenv(find_dotenv())
 
-def get_completion(prompt, model="open/deepseek-v4.1-flash-free"):
-    # 2. Package the message using standard roles
+# 2. Grab the API key securely
+api_key = os.environ.get("GROQ_API_KEY")
+if not api_key:
+    raise ValueError("Missing GROQ_API_KEY in your .env file!")
+
+# 3. Initialize the OFFICIAL Groq native developer client
+client = Groq(api_key=api_key)
+
+# 4. Use the active production-grade model identifier string
+def get_completion(prompt, model="qwen/qwen3.8-27b"):
     messages = [{"role": "user", "content": prompt}]
     
-    # 3. Fire the request out to the open-weights server
+    # Direct native execution pass
     response = client.chat.completions.create(
         model=model,
         messages=messages,
         temperature=0
     )
+    # Parse the data payload using the native Groq SDK structural path
     return response.choices[0].message.content
 
 # --- TEST THE PIPELINE ---
-text = f"""
-Clear and specific instructions give better outputs. \
-Longer prompts provide more clarity and context. \
-Do not confuse a clear prompt with a short prompt.
+lamp_review = """
+Needed a nice lamp for my bedroom, and this one had \
+additional storage and not too high of a price point. \
+Got it fast.  The string to our lamp broke during the \
+transit and the company happily sent over a new one. \
+Came within a few days as well. It was easy to put \
+together.  I had a missing part, so I contacted their \
+support and they very quickly got me the missing piece! \
+Lumina seems to me to be a great company that cares \
+about their customers and products!!
 """
 
 prompt = f"""
-Summarize the text delimited by triple backticks \
-into a single sentence.
-```{text}```
-"""
+What is the sentiment of the following product review, 
+which is delimited with triple backticks?
 
-print("Sending data to DeepSeek Free Tier...")
-print(get_completion(prompt))
+Review text: '''{lamp_review}'''
+"""
+response = get_completion(prompt)
+print(response)
+
+print("Connecting to Groq Cloud using Native Production SDK...")
+print("\nAI Response:")
+
+try:
+    print(get_completion(prompt))
+except Exception as e:
+    print(f"❌ Unexpected Error: {e}")
