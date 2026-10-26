@@ -1,0 +1,147 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "audit-ready-review-record",
+  "title": "AuditReadyReviewRecord",
+  "description": "One row per classification run. Every field exists so a human reviewer or auditor can reconstruct what happened without re-reading the raw input.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "record_id",
+    "task",
+    "decision",
+    "na_reason",
+    "consent",
+    "approval",
+    "evidence",
+    "provenance"
+  ],
+  "properties": {
+    "record_id": {
+      "type": "string",
+      "minLength": 12,
+      "maxLength": 32
+    },
+    "task": {
+      "type": "string",
+      "enum": ["review_sentiment"]
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "confidence", "rationale"],
+      "properties": {
+        "label": {
+          "type": "string",
+          "enum": ["positive", "negative", "neutral", "na"]
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400
+        }
+      }
+    },
+    "na_reason": {
+      "type": ["string", "null"],
+      "enum": [
+        "empty_input",
+        "not_a_review",
+        "wrong_language",
+        "insufficient_evidence",
+        "policy_blocked",
+        null
+      ]
+    },
+    "consent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["has_user_given_consent", "consent_ref"],
+      "properties": {
+        "has_user_given_consent": {"type": "boolean"},
+        "consent_ref": {"type": ["string", "null"]}
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "approver_id", "approved_at"],
+      "properties": {
+        "required": {"type": "boolean"},
+        "approver_id": {"type": ["string", "null"]},
+        "approved_at": {"type": ["string", "null"]}
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["url", "note"],
+        "properties": {
+          "url": {"type": "string", "minLength": 1},
+          "note": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_id",
+        "prompt_version",
+        "prompt_sha256",
+        "input_sha256",
+        "input_chars",
+        "generated_at",
+        "latency_ms",
+        "prompt_tokens",
+        "completion_tokens",
+        "repair_attempts",
+        "valid",
+        "validation_errors",
+        "gate"
+      ],
+      "properties": {
+        "model_id": {"type": "string", "minLength": 1},
+        "prompt_version": {"type": "string", "minLength": 1},
+        "prompt_sha256": {
+          "type": ["string", "null"],
+          "minLength": 64,
+          "maxLength": 64
+        },
+        "input_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64
+        },
+        "input_chars": {"type": "integer", "minimum": 0},
+        "generated_at": {"type": "string", "format": "date-time"},
+        "latency_ms": {"type": "integer", "minimum": 0},
+        "prompt_tokens": {"type": "integer", "minimum": 0},
+        "completion_tokens": {"type": "integer", "minimum": 0},
+        "repair_attempts": {"type": "integer", "minimum": 0, "maximum": 1},
+        "valid": {"type": "boolean"},
+        "validation_errors": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "gate": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["allowed", "reason", "detail"],
+          "properties": {
+            "allowed": {"type": "boolean"},
+            "reason": {"type": ["string", "null"]},
+            "detail": {"type": ["string", "null"]}
+          }
+        }
+      }
+    }
+  }
+}
