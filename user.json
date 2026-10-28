@@ -1,0 +1,23 @@
+{
+  "name": "Alisha",
+  "favoriteNumber": 8,
+  "isProgrammer": true,
+  "hobbies": [
+    "Screenwriting",
+    "Virtual Animation",
+    "Storytelling",
+    "Conversing"
+  ],
+  "characters": [
+    {
+      "name": "Audrey",
+      "favoriteNumber": 2,
+      "isProgrammer": false,
+      "friends": ["Naomi"]
+    }
+  ],
+
+  "_comment": "You can deeply nest Audrey's friend, Naomi, with her own favoriteNumber, isProgrammer, hobbies, etc.",
+  "username": "johndoe",
+  "email": "john@example.com"
+}
